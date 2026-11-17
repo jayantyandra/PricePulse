@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PricePulse — Universal Dataset Analysis & Visualization</title>
+  <meta name="description" content="Universal CSV Dataset Analysis & Dynamic Visualization System. Analyze any tabular data in-browser with automated statistical profiling, charting, filtering, and export.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- PapaParse for robust client-side CSV handling -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Chart.js for smooth reactive charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="noise-bg"></div>
+  <div class="glow-orb glow-top"></div>
+  <div class="glow-orb glow-bottom"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>PricePulse</h1>
+          <span class="badge">Universal Data Engine</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnLoadSample" class="btn btn-ghost" title="Load sample e-commerce pricing dataset">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          Load Demo CSV
+        </button>
+        <button id="btnReset" class="btn btn-outline" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+          Clear Data
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Upload Section -->
+    <section id="uploadSection" class="upload-section">
+      <div class="upload-card" id="dropZone">
+        <input type="file" id="fileInput" accept=".csv,text/csv" class="file-input-hidden" />
+        <div class="upload-icon-wrapper">
+          <svg class="upload-cloud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path>
+            <path d="M12 12v9"></path>
+            <path d="m8 16 4-4 4 4"></path>
+          </svg>
+        </div>
+        <h2>Upload your CSV Dataset</h2>
+        <p class="upload-hint">Drag & drop your file here, or <span class="highlight-link">browse from computer</span></p>
+        <div class="file-support-tag">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          Supports any tabular CSV schema with automated type profiling & in-memory privacy (no data leaves your browser)
+        </div>
+      </div>
+      <div id="uploadFeedback" class="upload-feedback" style="display:none;"></div>
+    </section>
+
+    <!-- Dashboard Content (Hidden until CSV loaded) -->
+    <section id="dashboardContent" class="dashboard-content" style="display: none;">
+      <!-- Dataset Overview Banner -->
+      <div class="file-meta-banner">
+        <div class="file-meta-left">
+          <span class="file-icon">📄</span>
+          <div>
+            <h3 id="datasetFileName">dataset.csv</h3>
+            <p id="datasetFileSize">0 KB</p>
+          </div>
+        </div>
+        <div class="export-actions">
+          <button id="btnExportCleaned" class="btn btn-outline" title="Export current filtered/cleaned CSV">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Export Cleaned CSV
+          </button>
+          <button id="btnDownloadReport" class="btn btn-primary" title="Download comprehensive markdown/HTML audit report">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Analysis Report
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Rows</span>
+            <span class="kpi-val" id="kpiRowCount">0</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon cyan">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Total Columns</span>
+            <span class="kpi-val" id="kpiColCount">0</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Missing Cells</span>
+            <span class="kpi-val" id="kpiMissingCount">0</span>
+            <span class="kpi-sub" id="kpiMissingPct">0%</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon purple">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Duplicates</span>
+            <span class="kpi-val" id="kpiDuplicateCount">0</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon emerald">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-label">Numeric Columns</span>
+            <span class="kpi-val" id="kpiNumericCols">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automated Summary & Insights -->
+      <section class="card summary-card">
+        <div class="card-header">
+          <div class="title-with-badge">
+            <div class="pulse-dot"></div>
+            <h3>Dynamic Analysis Findings & Data Health</h3>
+          </div>
+          <span class="pill pill-glow" id="dataQualityBadge">Evaluating...</span>
+        </div>
+        <div class="card-body">
+          <div id="summaryFindings" class="summary-list"></div>
+        </div>
+      </section>
+
+      <!-- Schema & Column Profiling -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Column Profiling & Types</h3>
+          <span class="card-subtitle">Detected types and statistical boundaries</span>
+        </div>
+        <div class="card-body table-responsive">
+          <table class="data-table" id="schemaTable">
+            <thead>
+              <tr>
+                <th>Column Name</th>
+                <th>Detected Type</th>
+                <th>Completeness</th>
+                <th>Unique Values</th>
+                <th>Quick Statistics (Min / Mean / Max / Sample)</th>
+              </tr>
+            </thead>
+            <tbody id="schemaTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Dynamic Visualizations -->
+      <section class="card">
+        <div class="card-header wrap-header">
+          <div>
+            <h3>Automated Visualizations</h3>
+            <span class="card-subtitle">Categorical frequency, distribution histograms & bivariate scatter plots</span>
+          </div>
+          <!-- Chart controls -->
+          <div class="chart-controls">
+            <div class="control-group">
+              <label for="chartTypeSelect">Chart Type:</label>
+              <select id="chartTypeSelect" class="form-select">
+                <option value="auto">Auto Selection</option>
+                <option value="bar">Bar Chart (Categorical)</option>
+                <option value="histogram">Histogram (Distribution)</option>
+                <option value="scatter">Scatter Plot (Numeric Relation)</option>
+              </select>
+            </div>
+            <div class="control-group" id="col1Control">
+              <label id="col1Label" for="primaryColSelect">Column X / Category:</label>
+              <select id="primaryColSelect" class="form-select"></select>
+            </div>
+            <div class="control-group" id="col2Control" style="display:none;">
+              <label id="col2Label" for="secondaryColSelect">Column Y (Numeric):</label>
+              <select id="secondaryColSelect" class="form-select"></select>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-container-wrapper">
+            <canvas id="mainChart"></canvas>
+            <div id="chartEmptyState" class="chart-empty-state" style="display: none;">
+              <div class="chart-empty-icon">📊</div>
+              <h4 id="chartEmptyTitle">No Valid Numeric Data</h4>
+              <p id="chartEmptyDesc">Select another column or adjust filters.</p>
+            </div>
+          </div>
+          <div class="chart-caption" id="chartExplanation"></div>
+        </div>
+      </section>
+
+      <!-- Interactive Data Explorer -->
+      <section class="card">
+        <div class="card-header wrap-header">
+          <div>
+            <h3>Interactive Data Explorer</h3>
+            <span class="card-subtitle" id="tableFilterStatus">Showing all records</span>
+          </div>
+          <div class="table-tools">
+            <div class="search-input-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="tableSearchInput" placeholder="Search any column value..." class="form-input search-input">
+            </div>
+            <select id="filterColumnSelect" class="form-select" title="Filter by specific column">
+              <option value="_all">All Columns</option>
+            </select>
+            <button id="btnRemoveMissing" class="btn btn-ghost" title="Filter out records with missing values">
+              Drop Missing
+            </button>
+            <button id="btnResetFilters" class="btn btn-ghost" title="Reset table filter to full dataset">
+              Reset Filters
+            </button>
+          </div>
+        </div>
+        <div class="card-body table-responsive">
+          <table class="data-table" id="dataTable">
+            <thead id="dataTableHead"></thead>
+            <tbody id="dataTableBody"></tbody>
+          </table>
+        </div>
+        <div class="card-footer pagination-bar">
+          <div class="pagination-info" id="paginationInfo">Showing 0 to 0 of 0 entries</div>
+          <div class="pagination-controls">
+            <button id="btnPrevPage" class="btn btn-sm btn-outline">Previous</button>
+            <span id="pageNumberDisplay" class="page-indicator">Page 1</span>
+            <button id="btnNextPage" class="btn btn-sm btn-outline">Next</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- Report Modal for full preview & direct printing -->
+  <div id="reportModal" class="modal-backdrop" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Dataset Diagnostic & Analysis Report</h2>
+        <div class="modal-header-actions">
+          <button id="btnPrintReport" class="btn btn-primary btn-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print / Save PDF
+          </button>
+          <button id="btnDownloadReportMd" class="btn btn-outline btn-sm">Download Markdown</button>
+          <button id="btnCloseModal" class="btn-close">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="reportContent"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>PricePulse &copy; Universal Tabular Profiler &bull; Client-side security guarantee &bull; Zero server data transit</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,43 +1,47 @@
 # PRICE PULSE 📊
 
-### Interactive CSV Data Analysis & Visualization Dashboard
+### Universal CSV Data Analysis & Visualization Dashboard
 
-PRICE PULSE is an interactive web application that simplifies CSV data analysis by transforming raw datasets into meaningful insights through automated data profiling, statistical summaries, and visualizations.
+PRICE PULSE is an interactive web application designed to simplify CSV data analysis through automated data profiling, statistical summaries, and dynamic visualizations.
 
 ## 🚀 Live Demo
 
-[View PRICE PULSE](YOUR_VERCEL_URL_HERE)
+[Explore PRICE PULSE](https://projectpricepulse.netlify.app/)
 
 ## ✨ Features
 
-- **CSV Upload:** Upload and analyze your own CSV datasets.
-- **Interactive Data Table:** Explore, search, and inspect dataset records.
+- **CSV Upload:** Upload and analyze custom CSV datasets.
+- **Interactive Data Explorer:** Search, filter, and explore dataset records.
 - **Column Profiling:** Identify data types, missing values, and unique values.
 - **Statistical Analysis:** Calculate minimum, maximum, and average values.
 - **Automated Visualizations:**
-  - Bar charts for category frequencies.
-  - Histograms for discount percentage distributions.
-  - Scatter plots for comparing discount percentages and discounted prices.
+  - Bar charts for categorical frequency.
+  - Histograms for numerical distributions.
+  - Scatter plots for relationships between numerical variables.
+- **Data Quality Analysis:** Identify missing values and duplicate records.
+- **Report Generation:** Print or save analysis reports.
 
-## 📂 Project Demonstration
+## 📊 Project Demonstration
 
-The project was demonstrated using an Amazon product dataset containing:
-
+Demonstrated using an Amazon product dataset containing:
 - 1,465 records
 - 16 columns
 
+The application analyzes user-uploaded CSV files and does not fetch live Amazon data or scrape product prices.
+
 ## 🛠️ Technologies Used
 
-- HTML
-- CSS
+- HTML5
+- CSS3
 - JavaScript
-- Chart.js (if used in the final implementation)
-- Google Antigravity for AI-assisted development
-- Vercel for deployment
+- Chart.js
+- PapaParse
+- Google Antigravity (AI-assisted development)
+- Netlify (Deployment and hosting)
 
 ## 🎯 Project Objective
 
-To make CSV data exploration easier by providing an accessible interface for examining datasets, identifying data quality issues, calculating statistics, and discovering patterns through visual analysis.
+To make CSV data exploration easier by transforming raw datasets into meaningful insights through data profiling, statistical analysis, and visualization.
 
 ## 💡 Key Learnings
 
@@ -56,4 +60,4 @@ To make CSV data exploration easier by providing an accessible interface for exa
 
 ---
 
-*Developed as part of the Data Analysis Essentials learning journey.*
+Developed as part of the Data Analysis Essentials learning journey.
